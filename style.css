@@ -1,0 +1,55 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  header {
+    border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-weight: bold;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    border: 2px solid black;
+    border-top: none;
+  }
+
+  nav a {
+    flex: 1;
+    padding: 20px;
+    border-right: 2px solid black;
+    text-decoration: none;
+    color: black;
+  }
+
+  nav a:last-child {
+    border-right: none;
+  }
+
+  .main-content {
+    border: 2px solid black;
+    border-top: none;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .btn-publier {
+    border: 2px solid black;
+    padding: 15px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: white;
+  }
+
+  .btn-publier:hover {
+    background-color: #f0f0f0;
+  }

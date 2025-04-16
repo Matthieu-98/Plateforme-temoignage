@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Enregistrement</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      border: 2px solid black;
+      width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 15px;
+      align-items: center;
+      justify-items: start;
+      margin-bottom: 30px;
+    }
+
+    label {
+      text-align: right;
+      padding-right: 10px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="pass"] {
+      width: 100%;
+      padding: 8px;
+      border: 2px solid black;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn {
+      border: 2px solid black;
+      padding: 10px 20px;
+      border-radius: 15px;
+      background-color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background-color: #f0f0f0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Veuillez vous enregistrer</h1>
+    
+
+    <form>
+      
+      <label for="prenom">Prénom</label>
+      <input type="text" id="prenom" name="prenom">
+
+      <label for="nom">Nom</label>
+      <input type="text" id="nom" name="nom">
+
+      <label for="societe">Société</label>
+      <input type="text" id="societe" name="societe">
+
+      <label for="mail">Mail</label>
+      <input type="email" id="mail" name="mail">
+
+      <label for="telephone">Téléphone</label>
+      <input type="tel" id="telephone" name="telephone">
+      
+      <label for="mot de passe">Mot de passe</label>
+      <input type="password" id="mot de passe" name="mot de passe">
+
+      <label for="confirmer mot de passe">Confirmer mot de passe</label>
+      <input type="password" id="confirmer mot de passe" name="confirmer mot de passe">
+
+
+    </form>
+
+    <div class="buttons">
+      <button class="btn">Photo</button>
+      <button class="btn">S'enregistrer</button>
+    </div>
+  </div>
+
+</body>
+</html>
