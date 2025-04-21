@@ -1,55 +1,63 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+header {
     text-align: center;
-  }
-
-  header {
-    border: 2px solid black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    font-size: 24px;
     font-weight: bold;
-  }
+    padding: 20px;
+    background-color: #333;
+    color: white;
+}
 
-  nav {
+nav {
     display: flex;
     justify-content: center;
-    border: 2px solid black;
-    border-top: none;
-  }
+    background-color: #eee;
+    border-bottom: 2px solid #ccc;
+}
 
-  nav a {
-    flex: 1;
-    padding: 20px;
-    border-right: 2px solid black;
+nav a {
     text-decoration: none;
     color: black;
-  }
+    padding: 15px 30px;
+    font-weight: bold;
+    border-right: 1px solid #ccc;
+}
 
-  nav a:last-child {
+nav a:last-child {
     border-right: none;
-  }
+}
 
-  .main-content {
-    border: 2px solid black;
-    border-top: none;
-    height: 400px;
+main {
     display: flex;
     justify-content: center;
     align-items: center;
-  }
+    height: 400px;
+}
 
-  .btn-publier {
-    border: 2px solid black;
+.btn-publier {
     padding: 15px 30px;
     font-size: 16px;
-    cursor: pointer;
+    border: 2px solid black;
+    border-radius: 8px;
     background-color: white;
-  }
+    cursor: pointer;
+}
 
-  .btn-publier:hover {
+.btn-publier:hover {
     background-color: #f0f0f0;
-  }
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
+}
