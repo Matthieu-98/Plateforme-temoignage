@@ -36,6 +36,24 @@ nav a:last-child {
     border-right: none;
 }
 
+.container {
+    border: 2px solid black;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: white;
+}
+
+textarea {
+    width: 80%;
+    height: 200px;
+    border: 2px solid black;
+    padding: 10px;
+    font-size: 16px;
+    resize: none;
+}
+
+
 main {
     display: flex;
     justify-content: center;
