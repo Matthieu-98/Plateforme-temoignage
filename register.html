@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+
     body {
       font-family: Arial, sans-serif;
       background-color: #f7f9fc;
@@ -60,7 +61,7 @@
     .buttons {
       grid-column: 1 / span 2;
       display: flex;
-      justify-content: space-between;
+      justify-content: right;
       margin-top: 20px;
     }
 
@@ -77,8 +78,11 @@
     .btn:hover {
       background-color: #eee;
     }
+
   </style>
+
 </head>
+
 <body>
 
   <div class="container">
@@ -110,11 +114,11 @@
       <input type="file" id="photo" name="photo" accept="image/*">
 
       <div class="buttons">
-        <button type="button" class="btn">Choisir Photo</button>
         <button type="submit" class="btn">S'enregistrer</button>
       </div>
     </form>
   </div>
 
 </body>
+
 </html>
