@@ -16,7 +16,7 @@
     </header>
     
     <nav>
-        <a href="Accueil.html">Accueil</a>
+        <a href="index.html">Accueil</a>
         <a href="Questionnaires.html">Questionnaires</a>
         <a href="droits.html">Droits</a>
         <a href="#">Langues</a>
@@ -25,13 +25,99 @@
    
     
     <div class="container">
-        <textarea placeholder="Entrez une question..."></textarea>
+        <textarea id = "questionInput" placeholder="Entrez une question..."></textarea>
         <br>
-        <button class="btn-publier">Ajouter une question</button>
-        <button class="btn-publier">Supprimer une question</button>
-        <button class="btn-publier">Créer le questionnaire</button>
+        <button id = "addQuestion" class="btn-publier">Ajouter une question</button>
+        <button id = "deleteQuestion" class="btn-publier">Supprimer une question</button>
+        <button id = "createQuiz" class="btn-publier">Créer le questionnaire</button>
+        <ul id = "questionList"> </ul>
     </div>
     
+    <script>
+        // Sélection des éléments avec typage strict
+var addBtn = document.getElementById('addQuestion');
+var deleteBtn = document.getElementById('deleteQuestion');
+var createBtn = document.getElementById('createQuiz');
+var questionInput = document.getElementById('questionInput');
+var questionList = document.getElementById('questionList');
+
+function downloadQuestionsAsHTML(questions) {
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Questions générées</title>
+</head>
+<body>
+    <h1>Liste des questions :</h1>
+    <ul>
+        ${questions.map(q => `<li>${q}</li>`).join('')}
+    </ul>
+</body>
+</html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'questions.html'; // Le fichier généré s'appellera questions.html
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Vérification pour éviter les erreurs si jamais un élément n'existe pas
+if (addBtn && deleteBtn && createBtn && questionInput && questionList) {
+
+    addBtn.addEventListener('click', function () {
+        var questionText = questionInput.value.trim();
+        if (questionText !== "") {
+            var li = document.createElement('li');
+            li.textContent = questionText;
+            li.addEventListener('click', function () {
+                // Désélectionne toutes les questions
+                document.querySelectorAll('#questionList li').forEach(function (item) {
+                    item.classList.remove('selected');
+                });
+                // Sélectionne celle qu'on a cliquée
+                li.classList.add('selected');
+            });
+            questionList.appendChild(li);
+            questionInput.value = "";
+        }
+    });
+
+    deleteBtn.addEventListener('click', function () {
+        var selected = document.querySelector('#questionList .selected');
+        if (selected) {
+            questionList.removeChild(selected);
+        } else {
+            alert('Veuillez sélectionner une question à supprimer.');
+        }
+    });
+
+    createBtn.addEventListener('click', function () {
+        var questions = [];
+        questionList.querySelectorAll('li').forEach(function (li) {
+            questions.push(li.textContent ?? "");
+        });
+    
+        if (questions.length > 0) {
+            downloadQuestionsAsHTML(questions); // ==> Génère le fichier HTML
+            alert(`Questionnaire créé avec ${questions.length} questions.`);
+            console.log(questions);
+        } else {
+            alert("Aucune question à enregistrer.");
+        }
+    });
+    
+}
+else {
+    console.error('Un ou plusieurs éléments n\'ont pas été trouvés dans le DOM.');
+}
+
+    </script>
 
 </body>
 
