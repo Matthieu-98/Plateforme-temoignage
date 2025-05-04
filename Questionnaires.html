@@ -1,24 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Questionnaires</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header> 
-        Retrouvez l'ensemble de vos questionnaires 
+    <header class="header">
+        <h1>Retrouvez l'ensemble de vos questionnaires</h1>
     </header>
-    
-    <nav>
-        <a href="index.html">Accueil</a>
-        <a href="Questionnaires">Questionnaires</a>
-        <a href="droits.html">Droits</a>
-        <a href="#">Langues</a>
-        <a href="sign.html">Connexion</a>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="Questionnaires.html">Questionnaires</a></li>
+            <li><a href="droits.html">Droits</a></li>
+            <li><a href="#">Langues</a></li>
+            <li><a href="sign.html">Connexion</a></li>
+        </ul>
     </nav>
-    
+
+    <main class="main-content">
+        <section>
+            <p>Bienvenue dans votre espace questionnaires. Vous pouvez :</p>
+            <ul>
+                <li>Consulter vos questionnaires enregistrés</li>
+                <li>Créer un nouveau questionnaire</li>
+                <li>Modifier ou supprimer un questionnaire existant</li>
+            </ul>
+
+            <div class="actions">
+                <a href="création.html"><button class="btn-publier">Créer un questionnaire</button></a>
+                <a href="mes_questionnaires.html"><button class="btn-publier">Voir mes questionnaires</button></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
+    </footer>
+
 </body>
 </html>

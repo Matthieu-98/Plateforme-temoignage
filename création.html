@@ -1,124 +1,246 @@
 <!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel= "stylesheet" href="style.css"> 
-    <title>Plateforme de témoignage</title>
-</head>
-
-<body>
-
-    <header> 
-        Bienvenue sur notre Plateforme 
-    </header>
-    
-    <nav>
-        <a href="index.html">Accueil</a>
-        <a href="Questionnaires.html">Questionnaires</a>
-        <a href="droits.html">Droits</a>
-        <a href="#">Langues</a>
-        <a href="sign.html">Connexion</a>
-    </nav>
-   
-    
-    <div class="container">
-        <textarea id = "questionInput" placeholder="Entrez une question..."></textarea>
-        <br>
-        <button id = "addQuestion" class="btn-publier">Ajouter une question</button>
-        <button id = "deleteQuestion" class="btn-publier">Supprimer une question</button>
-        <button id = "createQuiz" class="btn-publier">Créer le questionnaire</button>
-        <ul id = "questionList"> </ul>
-    </div>
-    
-    <script>
-        // Sélection des éléments avec typage strict
-var addBtn = document.getElementById('addQuestion');
-var deleteBtn = document.getElementById('deleteQuestion');
-var createBtn = document.getElementById('createQuiz');
-var questionInput = document.getElementById('questionInput');
-var questionList = document.getElementById('questionList');
-
-function downloadQuestionsAsHTML(questions) {
-    const htmlContent = `
-<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Questions générées</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création de questionnaire</title>
+    <style>
+        /* Reset de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+    padding: 0;
+  }
+  
+  /* HEADER */
+  .header {
+    background-color: #2a4d69;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .header h1 {
+    font-size: 2em;
+  }
+  
+  /* NAVIGATION */
+  .navbar {
+    background-color: #4b86b4;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .navbar ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .navbar li {
+    margin: 10px 15px;
+  }
+  
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .navbar a:hover {
+    text-decoration: underline;
+  }
+  
+  /* CONTAINER PRINCIPAL */
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  /* FORMULAIRES */
+  textarea,
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  /* LISTE DES QUESTIONS */
+  .question-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  .question-list li {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: #f1f1f1;
+    border-left: 4px solid #2a4d69;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .question-list li.selected {
+    background-color: #dbe9f4;
+    border-color: #4b86b4;
+  }
+  
+  /* BOUTONS */
+  .button-group,
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  .btn,
+  .btn-publier {
+    padding: 10px 20px;
+    border: 2px solid #2a4d69;
+    background-color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    color: #2a4d69;
+  }
+  
+  .btn:hover,
+  .btn-publier:hover {
+    background-color: #2a4d69;
+    color: white;
+  }
+  
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    background-color: #4b86b4;
+    color: white;
+  }
+  
+    </style>
+    
 </head>
+
 <body>
-    <h1>Liste des questions :</h1>
-    <ul>
-        ${questions.map(q => `<li>${q}</li>`).join('')}
-    </ul>
-</body>
-</html>
-    `;
 
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'questions.html'; // Le fichier généré s'appellera questions.html
-    a.click();
-    URL.revokeObjectURL(url);
-}
+    <header class="header">
+        <h1>Créer un nouveau questionnaire</h1>
+    </header>
 
-// Vérification pour éviter les erreurs si jamais un élément n'existe pas
-if (addBtn && deleteBtn && createBtn && questionInput && questionList) {
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="Questionnaires.html">Questionnaires</a></li>
+            <li><a href="droits.html">Droits</a></li>
+            <li><a href="#">Langues</a></li>
+            <li><a href="sign.html">Connexion</a></li>
+        </ul>
+    </nav>
 
-    addBtn.addEventListener('click', function () {
-        var questionText = questionInput.value.trim();
-        if (questionText !== "") {
-            var li = document.createElement('li');
-            li.textContent = questionText;
-            li.addEventListener('click', function () {
-                // Désélectionne toutes les questions
-                document.querySelectorAll('#questionList li').forEach(function (item) {
-                    item.classList.remove('selected');
-                });
-                // Sélectionne celle qu'on a cliquée
-                li.classList.add('selected');
+    <main class="main-content">
+        <section class="container">
+            <h2>Ajouter vos questions</h2>
+            <textarea id="questionInput" placeholder="Entrez une question..." rows="3"></textarea>
+
+            <div class="button-group">
+                <button id="addQuestion" class="btn-publier">Ajouter une question</button>
+                <button id="deleteQuestion" class="btn-publier">Supprimer la question sélectionnée</button>
+                <button id="createQuiz" class="btn-publier">Créer le questionnaire</button>
+            </div>
+
+            <ul id="questionList" class="question-list"></ul>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        const addBtn = document.getElementById('addQuestion');
+        const deleteBtn = document.getElementById('deleteQuestion');
+        const createBtn = document.getElementById('createQuiz');
+        const questionInput = document.getElementById('questionInput');
+        const questionList = document.getElementById('questionList');
+
+        function downloadQuestionsAsHTML(questions) {
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Questions générées</title></head>
+<body><h1>Liste des questions :</h1><ul>${questions.map(q => `<li>${q}</li>`).join('')}</ul></body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'questions.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        if (addBtn && deleteBtn && createBtn && questionInput && questionList) {
+            addBtn.addEventListener('click', () => {
+                const questionText = questionInput.value.trim();
+                if (questionText !== "") {
+                    const li = document.createElement('li');
+                    li.textContent = questionText;
+                    li.addEventListener('click', () => {
+                        document.querySelectorAll('#questionList li').forEach(item => item.classList.remove('selected'));
+                        li.classList.add('selected');
+                    });
+                    questionList.appendChild(li);
+                    questionInput.value = "";
+                }
             });
-            questionList.appendChild(li);
-            questionInput.value = "";
-        }
-    });
 
-    deleteBtn.addEventListener('click', function () {
-        var selected = document.querySelector('#questionList .selected');
-        if (selected) {
-            questionList.removeChild(selected);
+            deleteBtn.addEventListener('click', () => {
+                const selected = document.querySelector('#questionList .selected');
+                if (selected) {
+                    questionList.removeChild(selected);
+                } else {
+                    alert('Veuillez sélectionner une question à supprimer.');
+                }
+            });
+
+            createBtn.addEventListener('click', () => {
+                const questions = Array.from(questionList.querySelectorAll('li')).map(li => li.textContent ?? "");
+                if (questions.length > 0) {
+                    downloadQuestionsAsHTML(questions);
+                    alert(`Questionnaire créé avec ${questions.length} questions.`);
+                    console.log(questions);
+                } else {
+                    alert("Aucune question à enregistrer.");
+                }
+            });
         } else {
-            alert('Veuillez sélectionner une question à supprimer.');
+            console.error('Un ou plusieurs éléments manquent dans le DOM.');
         }
-    });
-
-    createBtn.addEventListener('click', function () {
-        var questions = [];
-        questionList.querySelectorAll('li').forEach(function (li) {
-            questions.push(li.textContent ?? "");
-        });
-    
-        if (questions.length > 0) {
-            downloadQuestionsAsHTML(questions); // ==> Génère le fichier HTML
-            alert(`Questionnaire créé avec ${questions.length} questions.`);
-            console.log(questions);
-        } else {
-            alert("Aucune question à enregistrer.");
-        }
-    });
-    
-}
-else {
-    console.error('Un ou plusieurs éléments n\'ont pas été trouvés dans le DOM.');
-}
-
     </script>
 
 </body>
-
 </html>
