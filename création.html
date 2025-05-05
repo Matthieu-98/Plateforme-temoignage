@@ -179,68 +179,7 @@
         <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
     </footer>
 
-    <script>
-        const addBtn = document.getElementById('addQuestion');
-        const deleteBtn = document.getElementById('deleteQuestion');
-        const createBtn = document.getElementById('createQuiz');
-        const questionInput = document.getElementById('questionInput');
-        const questionList = document.getElementById('questionList');
-
-        function downloadQuestionsAsHTML(questions) {
-            const htmlContent = `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><title>Questions générées</title></head>
-<body><h1>Liste des questions :</h1><ul>${questions.map(q => `<li>${q}</li>`).join('')}</ul></body>
-</html>`;
-
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'questions.html';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        if (addBtn && deleteBtn && createBtn && questionInput && questionList) {
-            addBtn.addEventListener('click', () => {
-                const questionText = questionInput.value.trim();
-                if (questionText !== "") {
-                    const li = document.createElement('li');
-                    li.textContent = questionText;
-                    li.addEventListener('click', () => {
-                        document.querySelectorAll('#questionList li').forEach(item => item.classList.remove('selected'));
-                        li.classList.add('selected');
-                    });
-                    questionList.appendChild(li);
-                    questionInput.value = "";
-                }
-            });
-
-            deleteBtn.addEventListener('click', () => {
-                const selected = document.querySelector('#questionList .selected');
-                if (selected) {
-                    questionList.removeChild(selected);
-                } else {
-                    alert('Veuillez sélectionner une question à supprimer.');
-                }
-            });
-
-            createBtn.addEventListener('click', () => {
-                const questions = Array.from(questionList.querySelectorAll('li')).map(li => li.textContent ?? "");
-                if (questions.length > 0) {
-                    downloadQuestionsAsHTML(questions);
-                    alert(`Questionnaire créé avec ${questions.length} questions.`);
-                    console.log(questions);
-                } else {
-                    alert("Aucune question à enregistrer.");
-                }
-            });
-        } else {
-            console.error('Un ou plusieurs éléments manquent dans le DOM.');
-        }
-    </script>
+    <script src="création.js"> </script>
 
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "rootDir": "C:/M1/Projet témoignages/Developpement",
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["C:/M1/Projet témoignages/Developpement"]
+}
