@@ -80,6 +80,24 @@
   }
   
   /* FORMULAIRES */
+  .title-group {
+    margin-bottom: 25px;
+}
+
+.title-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #2a4d69;
+}
+
+.title-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
   textarea,
   input[type="email"],
   input[type="password"] {
@@ -173,6 +191,11 @@
     <main class="main-content">
         <section class="container">
             <h2>Ajouter vos questions</h2>
+            <div class="title-group">
+              <label for="quizTitle">Titre du questionnaire :</label>
+              <input type="text" id="quizTitle" placeholder="Ex. : Questionnaire sur les droits fondamentaux" />
+            </div>
+          
             <textarea id="questionInput" placeholder="Entrez une question..." rows="3"></textarea>
 
             <div class="button-group">
