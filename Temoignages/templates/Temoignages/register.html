@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 40px 30px;
+      max-width: 480px;
+      width: 100%;
+      margin: auto;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 26px;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      padding: 12px 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .upload-label {
+      display: inline-block;
+      background-color: #6c63ff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .upload-label:hover {
+      background-color: #554ce4;
+    }
+
+    #photo {
+      display: none;
+    }
+
+    .file-name {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #007bff;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    footer.footer {
+      text-align: center;
+      padding: 16px 0;
+      background-color: #eee;
+      color: #444;
+      font-size: 14px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+    <h1>Créer un compte</h1>
+    <form method="POST" action="{% url 'send_link' %}" enctype="multipart/form-data" onsubmit="return verifierInscription()">
+      {% csrf_token %}
+
+      <label for="email">Adresse e-mail</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="mot_de_passe">Mot de passe</label>
+      <input type="password" id="mot_de_passe" name="mot_de_passe" required />
+
+      <label for="confirmation">Confirmer le mot de passe</label>
+      <input type="password" id="confirmation" name="confirmation" required />
+
+      <label for="photo" class="upload-label">Choisir une photo</label>
+      <input type="file" id="photo" name="photo" accept="image/*" />
+
+      <div class="file-name" id="file-name">Aucun fichier sélectionné</div>
+      <img id="preview" class="preview" alt="Aperçu de la photo" />
+
+      <p class="error-message" id="erreur">Les mots de passe ne correspondent pas.</p>
+
+      <button type="submit" class="btn">S'inscrire</button>
+    </form>
+
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    function verifierInscription() {
+      const mdp = document.getElementById("mot_de_passe").value;
+      const confirmation = document.getElementById("confirmation").value;
+      const messageErreur = document.getElementById("erreur");
+
+      if (mdp !== confirmation) {
+        messageErreur.style.display = "block";
+        return false;
+      }
+
+      messageErreur.style.display = "none";
+      return true;
+    }
+
+    const fileInput = document.getElementById("photo");
+    const fileNameDisplay = document.getElementById("file-name");
+    const previewImage = document.getElementById("preview");
+
+    document.querySelector(".upload-label").addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileNameDisplay.textContent = file.name;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+          previewImage.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        fileNameDisplay.textContent = "Aucun fichier sélectionné";
+        previewImage.style.display = "none";
+        previewImage.src = "";
+      }
+    });
+  </script>
+
+<form method="POST" action="/send-link/" enctype="multipart/form-data" onsubmit="return verifierInscription()">
+
+</body>
+
+</html>

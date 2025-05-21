@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création de questionnaire</title>
+    <style>
+        /* Reset de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .main-content {
+    flex: 1;
+  }
+  
+  /* HEADER */
+  .header {
+    background-color: #2a4d69;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .header h1 {
+    font-size: 2em;
+  }
+  
+  /* NAVIGATION */
+  .navbar {
+    background-color: #4b86b4;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .navbar ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .navbar li {
+    margin: 10px 15px;
+  }
+  
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .navbar a:hover {
+    text-decoration: underline;
+  }
+  
+  /* CONTAINER PRINCIPAL */
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  /* FORMULAIRES */
+  .title-group {
+    margin-bottom: 25px;
+}
+
+.title-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #2a4d69;
+}
+
+.title-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+  textarea,
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  /* LISTE DES QUESTIONS */
+  .question-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  .question-list li {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: #f1f1f1;
+    border-left: 4px solid #2a4d69;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .question-list li.selected {
+    background-color: #dbe9f4;
+    border-color: #4b86b4;
+  }
+  
+  /* BOUTONS */
+  .button-group,
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  .btn,
+  .btn-publier {
+    padding: 10px 20px;
+    border: 2px solid #2a4d69;
+    background-color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    color: #2a4d69;
+  }
+  
+  .btn:hover,
+  .btn-publier:hover {
+    background-color: #2a4d69;
+    color: white;
+  }
+  
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    background-color: #4b86b4;
+    color: white;
+  }
+  
+    </style>
+    
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>Créer un nouveau questionnaire</h1>
+    </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="{% url 'index' %}">Accueil</a></li>
+            <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
+            <li><a href="{% url 'droits' %}">Droits</a></li>
+            <li><a href="#">Langues</a></li>
+            <li><a href="{% url 'sign' %}">Connexion</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="main-content">
+        <section class="container">
+            <h2>Ajouter vos questions</h2>
+            <div class="title-group">
+              <label for="quizTitle">Titre du questionnaire :</label>
+              <input type="text" id="quizTitle" placeholder="Ex. : Questionnaire sur les droits fondamentaux" />
+            </div>
+          
+            <textarea id="questionInput" placeholder="Entrez une question..." rows="3"></textarea>
+
+            <div class="button-group">
+                <button id="addQuestion" class="btn-publier">Ajouter une question</button>
+                <button id="deleteQuestion" class="btn-publier">Supprimer la question sélectionnée</button>
+                <button id="createQuiz" class="btn-publier">Créer le questionnaire</button>
+            </div>
+
+            <ul id="questionList" class="question-list"></ul>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
+    </footer>
+
+    <script src="création.js"> </script>
+
+</body>
+</html>
