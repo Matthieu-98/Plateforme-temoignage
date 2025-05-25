@@ -5,16 +5,11 @@ from django.contrib.auth.models import User
 
 class Questionnaire(models.Model):
     titre = models.CharField(max_length=255)
+    utilisateur = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
 class Question(models.Model):
-    questionnaire = models.ForeignKey(
-        Questionnaire,
-        related_name='questions',  # PAS de champ 'questions' ailleurs
-        on_delete=models.CASCADE
-    )
+    questionnaire = models.ForeignKey(Questionnaire, related_name="questions", on_delete=models.CASCADE)
     texte = models.CharField(max_length=500)
-    def __str__(self):
-        return self.titre
     
 class Temoin(models.Model):
     utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
