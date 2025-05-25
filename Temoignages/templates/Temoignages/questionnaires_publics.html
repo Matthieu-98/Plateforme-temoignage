@@ -1,22 +1,42 @@
+{% load static %}
+
 <!DOCTYPE html>
-
-<html lang="en">
-
+<html lang="fr">
 <head>
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>espace public</title>
-    <link rel="stylesheet" href="style.css">
-
+    <title>Questionnaires Publics</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-
 <body>
-    
+    <nav class="navbar">
+        <ul>
+            <li><a href="{% url 'index' %}">Accueil</a></li>
+            <li><a href="{% url 'questionnaires_prives' %}">Questionnaires</a></li>
+            <li><a href="{% url 'droits' %}">Droits</a></li>
+            <li><a href="#">Langues</a></li>
+            <li><a href="{% url 'sign' %}">Connexion</a></li>
+        </ul>
+    </nav>
+
+    <h1>Les questionnaires public</h1>
+
+    <ul>
+        {% for q in questionnaires %}
+            <li>
+                <strong>{{ q.titre }}</strong><br>
+                <ul>
+                    {% for question in q.questions %}
+                        <li>{{ question }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+            <li>Aucun questionnaire pour le moment.</li>
+        {% endfor %}
+    </ul>
+
     <footer class="footer">
         <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
     </footer>
-
 </body>
-
 </html>

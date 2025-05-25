@@ -44,7 +44,8 @@
             <div class="actions">
                 <a href="{% url 'creation' %}"><button class="btn-publier">Créer un questionnaire</button></a>
                 <a href="{% url 'questionnaires_prives' %}"><button class="btn-publier">Voir mes questionnaires</button></a>
-                <a href="{% url 'questionnaires_publics' %}"><button class="btn-publier">voir d'autres questionnaires</button></a>
+                <a href="{% url 'questionnaires_publics' %}"><button class="btn-publier">Voir les questionnaires publics</button></a>
+
             </div>
         </section>
     </main>
@@ -53,5 +54,11 @@
         <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
     </footer>
 
+<form id="questionForm" style="display:none;">
+  {% csrf_token %}
+</form>
+
+
 </body>
 </html>
+
