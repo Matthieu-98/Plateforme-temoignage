@@ -23,6 +23,29 @@
     </nav>
 
     
+<nav style="background:#eee;padding:10px;text-align:center;">
+  <a href="{% url 'creation' %}" style="margin:10px;">📤 Envoyer un témoignage</a>
+  <a href="{% url 'liste_temoin' %}" style="margin:10px;">📺 Voir les témoignages</a>
+  <a href="/upload/" style="margin:10px;">⚙️ Envoi manuel (test)</a>
+</nav>
+
+<header>Témoignages enregistrés</header>
+
+<main class="container">
+  {% for t in temoins %}
+    <h3>{{ t.questionnaire.titre }} ({{ t.date_creation|date:"d/m/Y H:i" }})</h3>
+    <video width="480" controls>
+      <source src="{{ t.fichier_video.url }}" type="video/webm">
+      Votre navigateur ne supporte pas la vidéo.
+    </video>
+    <hr>
+  {% empty %}
+    <p>Aucun témoignage pour le moment.</p>
+  {% endfor %}
+</main>
+
+
+    
 </body>
 
 </html>

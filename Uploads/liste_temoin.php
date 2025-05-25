@@ -1,6 +1,6 @@
 <?php
 // Connexion à la base de données
-$pdo = new PDO("mysql:host=localhost;dbname=plateforme_temoin;charset=utf8", "root", "");
+$pdo = new PDO("db.sqlite3", "root", "");
 
 // On récupère tous les témoignages et leur questionnaire
 $temoins = $pdo->query("

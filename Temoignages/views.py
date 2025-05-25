@@ -8,6 +8,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
+from .models import Temoin
+
 
 def index(request):
     return render(request, 'Temoignages/index.html')
@@ -94,3 +96,7 @@ def activate(request, uidb64, token):
         return HttpResponse("Votre compte a été activé.")
     else:
         return HttpResponse("Lien de confirmation invalide.")
+
+def liste_temoin(request):
+    temoins = Temoin.objects.select_related('questionnaire').order_by('-date_creation')
+    return render(request, 'Temoignages/temoignage.html', {'temoins': temoins})
