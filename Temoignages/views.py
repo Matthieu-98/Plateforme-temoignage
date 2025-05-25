@@ -9,7 +9,10 @@ from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from .models import Temoin
+from django.http import JsonResponse
 import json
+from .models import Questionnaire
+
 
 
 def index(request):
@@ -103,12 +106,23 @@ def liste_temoin(request):
     return render(request, 'Temoignages/temoignage.html', {'temoins': temoins})
 
 def create_questionnaire(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         data = json.loads(request.body)
-        title = data.get("title", "Sans titre")
-        questions = data.get("questions", [])
-        return render(request, "questionnaires_privees.html", {
-            "title": title,
-            "questions": questions
-        })
-    return render(request, "erreur.html", {"message": "Méthode non autorisée"})
+        titre = data.get('title')
+        questions = data.get('questions')
+
+        Questionnaire.objects.create(
+            titre=titre,
+            questions=questions,
+            utilisateur=request.user if request.user.is_authenticated else None
+        )
+
+        return JsonResponse({'message': 'Questionnaire enregistré avec succès.'})
+    return JsonResponse({'error': 'Méthode non autorisée.'}, status=405)
+
+def questionnaires_prives(request):
+    if request.user.is_authenticated:
+        questionnaires = Questionnaire.objects.prefetch_related('questions').all()
+    else:
+        questionnaires = []
+    return render(request, 'questionnaires_prives.html', {'questionnaires': questionnaires})

@@ -21,16 +21,18 @@
     <h1>Vos questionnaires privés</h1>
 
     <ul>
-        {% if q.questions.all %}
-    <ul>
-    {% for question in q.questions.all %}
-        <li>{{ question.texte }}</li>
-    {% endfor %}
-    </ul>
-    {% else %}
-    <p>Aucune question.</p>
-    {% endif %}
-
+        {% for q in questionnaires %}
+            <li>
+                <strong>{{ q.titre }}</strong><br>
+                <ul>
+                    {% for question in q.questions %}
+                        <li>{{ question }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+            <li>Aucun questionnaire privé pour le moment.</li>
+        {% endfor %}
     </ul>
 
     <footer class="footer">
