@@ -18,14 +18,7 @@
     <nav class="navbar">
         <ul>
             <li><a href="{% url 'index' %}">Accueil</a></li>
-            <li class="dropdown">
-             <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
-                <ul class="submenu">
-                    <li><a href="{% url 'questionnaires_prives' %}">Mon espace</a></li>
-                    <li><a href="{% url 'questionnaires_publics'%}">Espace public</a></li>
-                </ul>
-            </li>
-            <li><a href="{% url 'droits' %}">Droits</a></li>
+            <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
             <li><a href="#">Langues</a></li>
             <li><a href="{% url 'sign' %}">Connexion</a></li>
         </ul>
