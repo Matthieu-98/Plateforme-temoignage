@@ -11,8 +11,7 @@ from django.contrib.auth.tokens import default_token_generator
 from .models import Temoin
 from django.http import JsonResponse
 import json
-from .models import Questionnaire
-
+from .models import Questionnaire, Question
 
 
 def index(request):
@@ -40,7 +39,7 @@ def register(request):
     return render(request, 'Temoignages/register.html')
 
 def creation(request):
-    return render(request, 'Temoignages/creation.html')
+    return render(request, 'Temoignages/create.html')
 
 def forgotten_password(request):
     return render(request, 'Temoignages/forgotten_password.html')
@@ -107,22 +106,31 @@ def liste_temoin(request):
 
 def create_questionnaire(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        titre = data.get('title')
-        questions = data.get('questions')
+        try:
+            data = json.loads(request.body)
+            title = data.get('title', '')
+            questions = data.get('questions', [])
 
-        Questionnaire.objects.create(
-            titre=titre,
-            questions=questions,
-            utilisateur=request.user if request.user.is_authenticated else None
-        )
+            # ➤ Enregistrement réel dans la base de données
+            questionnaire = Questionnaire.objects.create(
+                titre=title,
+                utilisateur=request.user if request.user.is_authenticated else None
+            )
 
-        return JsonResponse({'message': 'Questionnaire enregistré avec succès.'})
-    return JsonResponse({'error': 'Méthode non autorisée.'}, status=405)
+            for q in questions:
+                Question.objects.create(questionnaire=questionnaire, texte=q)
+
+            return JsonResponse({'message': 'Questionnaire enregistré avec succès.'}, status=201)
+
+        except Exception as e:
+            print("❌ Erreur JSON:", e)
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 def questionnaires_prives(request):
     if request.user.is_authenticated:
-        questionnaires = Questionnaire.objects.prefetch_related('questions').all()
+        questionnaires = Questionnaire.objects.filter(utilisateur=request.user).prefetch_related('questions')
     else:
         questionnaires = []
-    return render(request, 'questionnaires_prives.html', {'questionnaires': questionnaires})
+    return render(request, 'Temoignages/questionnaires_prives.html', {'questionnaires': questionnaires})

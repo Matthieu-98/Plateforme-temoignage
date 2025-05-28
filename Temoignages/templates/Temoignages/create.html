@@ -4,11 +4,10 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Création de questionnaire</title>
     <style>
-        /* Reset de base */
-        * {
+                * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -168,12 +167,11 @@
             margin-top: 40px;
             background-color: #4b86b4;
             color: white;
-        }
+        } 
     </style>
+    
 </head>
-
 <body>
-
     <header class="header">
         <h1>Créer un nouveau questionnaire</h1>
     </header>
@@ -188,7 +186,6 @@
         </ul>
     </nav>
 
-    <!-- FORMULAIRE avec token CSRF -->
     <main class="main-content">
         <section class="container">
             <form id="quizForm" method="post" novalidate>
@@ -217,7 +214,7 @@
     </footer>
 
     <script>
-      const redirectUrl = "{% url 'questionnaires_prives' %}";
+        const redirectUrl = "{% url 'questionnaires_prives' %}";
     </script>
 
     <script src="{% static 'js/creation.js' %}"></script>

@@ -19,18 +19,26 @@
 
     <h1>Vos questionnaires privés</h1>
 
-    <ul>
-        {% if q.questions.all %}
-    <ul>
-    {% for question in q.questions.all %}
-        <li>{{ question.texte }}</li>
-    {% endfor %}
-    </ul>
+    {% if questionnaires %}
+        <ul>
+        {% for q in questionnaires %}
+            <li>
+                <strong>{{ q.titre }}</strong>
+                {% if q.questions.all %}
+                    <ul>
+                    {% for question in q.questions.all %}
+                        <li>{{ question.texte }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Aucune question.</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     {% else %}
-    <p>Aucune question.</p>
+        <p>Aucun questionnaire trouvé.</p>
     {% endif %}
-
-    </ul>
 
     <footer class="footer">
         <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
