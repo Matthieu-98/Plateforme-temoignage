@@ -7,6 +7,9 @@ class Questionnaire(models.Model):
     titre = models.CharField(max_length=255)
     utilisateur = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     date_creation = models.DateTimeField(auto_now_add=True)  
+    
+    def __str__(self):
+        return self.titre
 
 
 class Question(models.Model):
@@ -18,3 +21,6 @@ class Temoin(models.Model):
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE)
     fichier_video = models.FileField(upload_to='uploads/')
     date_creation = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Témoin du {self.date_creation} - {self.date_creation}"

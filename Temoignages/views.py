@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -235,3 +236,41 @@ def set_new_password(request, uidb64, token):
         })
     else:
         return HttpResponse("Lien de réinitialisation invalide ou expiré.")
+
+def upload_test(request):
+    if request.method == 'POST':
+        questionnaire_id = request.POST.get('questionnaire')
+        video_file = request.FILES.get('video')
+
+        if questionnaire_id and video_file:
+            questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+            Temoin.objects.create(
+                questionnaire=questionnaire,
+                fichier_video=video_file
+            )
+            return redirect('liste_temoin')  # redirige vers la page listant les témoignages
+
+    questionnaires = Questionnaire.objects.all()
+    return render(request, 'Temoignages/upload_test.html', {
+        'questionnaires': questionnaires
+    })
+    
+@login_required
+def temoignage_upload(request):
+    if request.method == 'POST':
+        questionnaire_id = request.POST.get('questionnaire_id')
+        video_file = request.FILES.get('videoUpload')
+
+        if questionnaire_id and video_file:
+            questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+            Temoin.objects.create(
+                questionnaire=questionnaire,
+                utilisateur=request.user,
+                fichier_video=video_file
+            )
+            return redirect('liste_temoin')  # Redirige vers la liste des témoignages
+
+    questionnaires = Questionnaire.objects.filter(utilisateur=request.user)
+    return render(request, 'Temoignages/temoignage_upload.html', {
+        'questionnaires': questionnaires
+    })
