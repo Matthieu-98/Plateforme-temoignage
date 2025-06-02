@@ -12,6 +12,11 @@ from .models import Temoin
 from django.http import JsonResponse
 import json
 from .models import Questionnaire, Question
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+
 
 
 def index(request):
@@ -43,6 +48,9 @@ def creation(request):
 
 def forgotten_password(request):
     return render(request, 'Temoignages/forgotten_password.html')
+
+def reset_password(request):
+    return render(request, 'Temoignages/reset_password.html')
 
 def temoignage(request):
     return render(request, 'Temoignages/temoignage.html')
@@ -85,7 +93,6 @@ def send_confirmation_link(request):
 
     return redirect('register')
 
-
 def activate(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
@@ -93,12 +100,16 @@ def activate(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
 
-    if user and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return HttpResponse("Votre compte a été activé.")
+    if user is not None and default_token_generator.check_token(user, token):
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+            message = "Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter."
+        else:
+            message = "Votre compte est déjà activé."
+        return render(request, "emails/activation_success.html", {"message": message})
     else:
-        return HttpResponse("Lien de confirmation invalide.")
+        return render(request, "emails/activation_failed.html", {"message": "Lien de confirmation invalide ou expiré."})
 
 def liste_temoin(request):
     temoins = Temoin.objects.select_related('questionnaire').order_by('-date_creation')
@@ -134,3 +145,93 @@ def questionnaires_prives(request):
     else:
         questionnaires = []
     return render(request, 'Temoignages/questionnaires_prives.html', {'questionnaires': questionnaires})
+
+
+@csrf_protect
+def custom_login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+
+        if not email or not password:
+            messages.error(request, "Veuillez remplir tous les champs.")
+            return redirect('sign')
+
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                messages.success(request, "Connexion réussie.")
+                return redirect('index')
+            else:
+                messages.warning(request, "Votre compte n'est pas encore activé.")
+                return redirect('sign')
+        else:
+            messages.error(request, "Identifiants invalides.")
+            return redirect('sign')
+
+    return render(request, 'Temoignages/sign.html')
+
+def reset_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            if not user.is_active:
+                messages.error(request, "Ce compte n'est pas encore activé.")
+                return redirect('reset_password')
+
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            current_site = get_current_site(request)
+            reset_url = f"http://{current_site.domain}/reset/{uid}/{token}/"
+
+            message = render_to_string("emails/password_reset_email.html", {
+                'user': user,
+                'reset_url': reset_url,
+            })
+
+            mail = EmailMessage(
+                subject="Réinitialisation de votre mot de passe",
+                body=message,
+                to=[email]
+            )
+            mail.content_subtype = 'html'
+            mail.send()
+
+            messages.success(request, "Un e-mail de réinitialisation a été envoyé.")
+            return redirect('sign')
+
+        except User.DoesNotExist:
+            messages.error(request, "Aucun compte associé à cette adresse e-mail.")
+
+    return render(request, 'Temoignages/reset_password.html')
+
+def set_new_password(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            confirm = request.POST.get('confirm')
+            if password != confirm:
+                return render(request, 'Temoignages/set_new_password.html', {
+                    'error': "Les mots de passe ne correspondent pas.",
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            user.set_password(password)
+            user.save()
+            messages.success(request, "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter.")
+            return redirect('sign')  # Redirige vers la page de connexion
+        return render(request, 'Temoignages/set_new_password.html', {
+            'uidb64': uidb64,
+            'token': token,
+        })
+    else:
+        return HttpResponse("Lien de réinitialisation invalide ou expiré.")
