@@ -21,7 +21,7 @@
             <li><a href="{% url 'index' %}">Accueil</a></li>
             <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
             <li><a href="#">Langues</a></li>
-            <li><a href="{% url 'sign' %}">Connexion</a></li>
+            <li><a href="{% url 'login' %}">Connexion</a></li>
         </ul>
     </nav>
 
@@ -33,7 +33,7 @@
 
         <section class="actions">
             <a href="{% url 'creation' %}"><button class="btn-publier">Éditer un questionnaire</button></a>
-            <a href="{% url 'temoignage' %}"><button class="btn-publier">Partager un témoignage</button></a>
+            <a href="{% url 'temoignage_upload' %}"><button class="btn-publier">Partager un témoignage</button></a>
         </section>
     </main>
 

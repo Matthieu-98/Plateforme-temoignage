@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -87,7 +88,7 @@
   <main class="container">
     <h2>Upload manuel d'un témoignage</h2>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_test' %}">
       {% csrf_token %}
       
       <label for="questionnaire">Choisir un questionnaire :</label>
@@ -98,7 +99,7 @@
       </select>
 
       <label for="video">Choisir un fichier vidéo :</label>
-      <input type="file" name="video" id="video" required>
+      <input type="file" name="video" id="video" accept="video/*" required>
 
       <button type="submit">Envoyer</button>
     </form>

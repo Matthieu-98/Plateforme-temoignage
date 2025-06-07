@@ -19,12 +19,13 @@ from django.urls import path
 from django.contrib.auth.views import LoginView
 from django.conf.urls.static import static
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('login/', LoginView.as_view(), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('index/', views.index, name='index'),
     path('creation/', views.creation, name='creation'),
     path('connexion/', views.custom_login_view, name='custom_login_view'),
@@ -34,9 +35,8 @@ urlpatterns = [
     path('questionnaire/questionnaires_publics/', views.questionnaires_publics, name='questionnaires_publics'),
     path('droits/', views.droits, name='droits'),
     path('langues/', views.langues, name='langues'),
-    path('sign/', views.sign, name='sign'),
-    path('sign/register/', views.register, name='register'),
-    path('sign/forgotten-password/', views.forgotten_password, name='forgotten_password'),
+    path('login/register/', views.register, name='register'),
+    path('login/forgotten-password/', views.forgotten_password, name='forgotten_password'),
     path('temoignage/', views.temoignage_upload, name='temoignage_upload'),
     path('temoins/', views.liste_temoin, name='liste_temoin'),
     path('reset-password/', views.reset_password, name='reset_password'),

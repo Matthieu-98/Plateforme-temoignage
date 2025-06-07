@@ -19,7 +19,7 @@ class Question(models.Model):
 class Temoin(models.Model):
     utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE)
-    fichier_video = models.FileField(upload_to='uploads/')
+    fichier_video = models.FileField(upload_to="videos/")
     date_creation = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

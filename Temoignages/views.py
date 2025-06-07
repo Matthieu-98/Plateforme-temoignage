@@ -21,40 +21,40 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    return render(request, 'Temoignages/index.html')
+    return render(request, 'index.html')
 
 def questionnaires(request):
-    return render(request, 'Temoignages/questionnaires.html')
+    return render(request, 'questionnaires.html')
 
 def questionnaires_publics(request):
-    return render(request, 'Temoignages/questionnaires_publics.html')
+    return render(request, 'questionnaires_publics.html')
 
 def questionnaires_prives(request):
-    return render(request, 'Temoignages/questionnaires_prives.html')
+    return render(request, 'questionnaires_prives.html')
 
 def droits(request):
-    return render(request, 'Temoignages/droits.html')
+    return render(request, 'droits.html')
 
 def langues(request):
-    return render(request, 'Temoignages/langues.html')
+    return render(request, 'langues.html')
 
-def sign(request):
-    return render(request, 'Temoignages/sign.html')
+def login(request):
+    return render(request, 'login.html')
 
 def register(request):
-    return render(request, 'Temoignages/register.html')
+    return render(request, 'register.html')
 
 def creation(request):
-    return render(request, 'Temoignages/create.html')
+    return render(request, 'create.html')
 
 def forgotten_password(request):
-    return render(request, 'Temoignages/forgotten_password.html')
+    return render(request, 'forgotten_password.html')
 
 def reset_password(request):
-    return render(request, 'Temoignages/reset_password.html')
+    return render(request, 'reset_password.html')
 
 def temoignage(request):
-    return render(request, 'Temoignages/temoignage.html')
+    return render(request, 'temoignage.html')
 
 
 def send_confirmation_link(request):
@@ -63,14 +63,34 @@ def send_confirmation_link(request):
         password = request.POST.get("mot_de_passe")
         confirmation = request.POST.get("confirmation")
 
+        if not email or not password or not confirmation:
+            messages.error(request, "Tous les champs sont obligatoires.")
+            return redirect("register")
+
         if password != confirmation:
-            return HttpResponse("Les mots de passe ne correspondent pas.")
+            messages.error(request, "Les mots de passe ne correspondent pas.")
+            return redirect("register")
 
-        if User.objects.filter(username=email).exists():
-            return HttpResponse("Un utilisateur avec cette adresse e-mail existe déjà.")
+        existing_user = User.objects.filter(username=email).first()
+        if existing_user:
+            # L'utilisateur existe, vérifier le mot de passe
+            user = authenticate(request, username=email, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    messages.success(request, "Connexion réussie.")
+                    return redirect("index")  # Redirige vers la page d'accueil
+                else:
+                    messages.warning(request, "Votre compte existe mais n’est pas encore activé. Vérifiez vos e-mails.")
+                    return redirect("login")
+            else:
+                messages.error(request, "Un compte existe déjà avec cet e-mail, mais le mot de passe est incorrect.")
+                return redirect("register")
 
+        # L'utilisateur n'existe pas : création et envoi du lien de confirmation
         user = User.objects.create_user(username=email, email=email, password=password)
-        user.is_active = False  # Compte désactivé jusqu'à vérification
+        user.is_active = False
+        user.save()
 
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -87,12 +107,13 @@ def send_confirmation_link(request):
             body=message,
             to=[email],
         )
-        mail.content_subtype = 'html'  
+        mail.content_subtype = 'html'
         mail.send()
 
-        return HttpResponse("Un e-mail de confirmation vous a été envoyé.")
+        messages.success(request, "Un e-mail de confirmation vous a été envoyé.")
+        return redirect("login")
 
-    return redirect('register')
+    return redirect("register")
 
 def activate(request, uidb64, token):
     try:
@@ -114,7 +135,7 @@ def activate(request, uidb64, token):
 
 def liste_temoin(request):
     temoins = Temoin.objects.select_related('questionnaire').order_by('-date_creation')
-    return render(request, 'Temoignages/temoignage.html', {'temoins': temoins})
+    return render(request, 'temoignage.html', {'temoins': temoins})
 
 def create_questionnaire(request):
     if request.method == 'POST':
@@ -145,7 +166,7 @@ def questionnaires_prives(request):
         questionnaires = Questionnaire.objects.filter(utilisateur=request.user).prefetch_related('questions')
     else:
         questionnaires = []
-    return render(request, 'Temoignages/questionnaires_prives.html', {'questionnaires': questionnaires})
+    return render(request, 'questionnaires_prives.html', {'questionnaires': questionnaires})
 
 
 @csrf_protect
@@ -156,7 +177,7 @@ def custom_login_view(request):
 
         if not email or not password:
             messages.error(request, "Veuillez remplir tous les champs.")
-            return redirect('sign')
+            return redirect('login')
 
         user = authenticate(request, username=email, password=password)
         if user is not None:
@@ -166,12 +187,12 @@ def custom_login_view(request):
                 return redirect('index')
             else:
                 messages.warning(request, "Votre compte n'est pas encore activé.")
-                return redirect('sign')
+                return redirect('login')
         else:
             messages.error(request, "Identifiants invalides.")
-            return redirect('sign')
+            return redirect('login')
 
-    return render(request, 'Temoignages/sign.html')
+    return render(request, 'templates/login.html')
 
 def reset_password(request):
     if request.method == 'POST':
@@ -201,12 +222,12 @@ def reset_password(request):
             mail.send()
 
             messages.success(request, "Un e-mail de réinitialisation a été envoyé.")
-            return redirect('sign')
+            return redirect('login')
 
         except User.DoesNotExist:
             messages.error(request, "Aucun compte associé à cette adresse e-mail.")
 
-    return render(request, 'Temoignages/reset_password.html')
+    return render(request, 'reset_password.html')
 
 def set_new_password(request, uidb64, token):
     User = get_user_model()
@@ -221,7 +242,7 @@ def set_new_password(request, uidb64, token):
             password = request.POST.get('password')
             confirm = request.POST.get('confirm')
             if password != confirm:
-                return render(request, 'Temoignages/set_new_password.html', {
+                return render(request, 'set_new_password.html', {
                     'error': "Les mots de passe ne correspondent pas.",
                     'uidb64': uidb64,
                     'token': token,
@@ -229,31 +250,41 @@ def set_new_password(request, uidb64, token):
             user.set_password(password)
             user.save()
             messages.success(request, "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter.")
-            return redirect('sign')  # Redirige vers la page de connexion
-        return render(request, 'Temoignages/set_new_password.html', {
+            return redirect('login')  # Redirige vers la page de connexion
+        return render(request, 'set_new_password.html', {
             'uidb64': uidb64,
             'token': token,
         })
     else:
         return HttpResponse("Lien de réinitialisation invalide ou expiré.")
 
+@login_required
 def upload_test(request):
-    if request.method == 'POST':
-        questionnaire_id = request.POST.get('questionnaire')
-        video_file = request.FILES.get('video')
+    if request.method == "POST":
+        video = request.FILES.get("video")  # correspond à name="video"
+        questionnaire_id = request.POST.get("questionnaire")  # name="questionnaire"
 
-        if questionnaire_id and video_file:
-            questionnaire = Questionnaire.objects.get(id=questionnaire_id)
-            Temoin.objects.create(
-                questionnaire=questionnaire,
-                fichier_video=video_file
-            )
-            return redirect('liste_temoin')  # redirige vers la page listant les témoignages
+        if not video or not questionnaire_id:
+            messages.error(request, "Tous les champs sont obligatoires.")
+            return redirect("upload_test")
+
+        try:
+            questionnaire = Questionnaire.objects.get(pk=questionnaire_id)
+        except Questionnaire.DoesNotExist:
+            messages.error(request, "Questionnaire invalide.")
+            return redirect("upload_test")
+
+        Temoin.objects.create(
+            utilisateur=request.user,
+            questionnaire=questionnaire,
+            fichier_video=video,
+        )
+
+        messages.success(request, "Vidéo envoyée avec succès.")
+        return redirect("liste_temoin")
 
     questionnaires = Questionnaire.objects.all()
-    return render(request, 'Temoignages/upload_test.html', {
-        'questionnaires': questionnaires
-    })
+    return render(request, "upload_test.html", {"questionnaires": questionnaires})
     
 @login_required
 def temoignage_upload(request):
@@ -271,6 +302,6 @@ def temoignage_upload(request):
             return redirect('liste_temoin')  # Redirige vers la liste des témoignages
 
     questionnaires = Questionnaire.objects.filter(utilisateur=request.user)
-    return render(request, 'Temoignages/temoignage_upload.html', {
+    return render(request, 'temoignage_upload.html', {
         'questionnaires': questionnaires
     })
