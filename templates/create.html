@@ -131,6 +131,17 @@
             background-color: #dbe9f4;
             border-color: #4b86b4;
         }
+
+        .question-list li.required {
+        border-left-color: #d9534f;  /* Rouge vif */
+        background-color: #f8d7da;   /* Rose clair */
+        font-weight: bold;
+        }
+
+        .question-list li.required::before {
+        content: "⚠️ "; /* Petit icône warning */
+        }
+
         
         /* BOUTONS */
         .button-group,
@@ -180,6 +191,7 @@
         <ul>
             <li><a href="{% url 'index' %}">Accueil</a></li>
             <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
+            <li><a href="{% url 'droits' %}">Droits</a></li>
             <li><a href="#">Langues</a></li>
             <li><a href="{% url 'login' %}">Connexion</a></li>
         </ul>
@@ -196,6 +208,8 @@
                 </div>
                 
                 <textarea id="questionInput" placeholder="Entrez une question..." rows="3"></textarea>
+                <label> <input type="checkbox" id="requiredCheckbox" checked>   Rendre la question obligatoire  </label>    
+
 
                 <div class="button-group">
                     <button id="addQuestion" class="btn-publier" type="button">Ajouter une question</button>

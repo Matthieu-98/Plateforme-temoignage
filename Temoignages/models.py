@@ -15,6 +15,7 @@ class Questionnaire(models.Model):
 class Question(models.Model):
     questionnaire = models.ForeignKey(Questionnaire, related_name="questions", on_delete=models.CASCADE)
     texte = models.CharField(max_length=500)
+    is_required = models.BooleanField(default=True)
     
 class Temoin(models.Model):
     utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)

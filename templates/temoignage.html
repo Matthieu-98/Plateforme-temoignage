@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>Témoignages vidéo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,6 +19,37 @@
       color: white;
       text-align: center;
       padding: 1em 0;
+    }
+
+    nav.navbar {
+      background-color: #0056b3;
+      padding: 0.5em 0;
+      text-align: center;
+    }
+
+    nav.navbar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    nav.navbar ul li {
+      display: inline;
+    }
+
+    nav.navbar ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5em 1em;
+    }
+
+    nav.navbar ul li a:hover {
+      background-color: #003f80;
+      border-radius: 6px;
     }
 
     main.container {
@@ -64,6 +96,15 @@
 <header>
   <h1>🎬 Témoignages enregistrés</h1>
 </header>
+
+<nav class="navbar">
+  <ul>
+    <li><a href="{% url 'index' %}">Accueil</a></li>
+    <li><a href="{% url 'questionnaires_prives' %}">Questionnaires</a></li>
+    <li><a href="#">Langues</a></li>
+    <li><a href="{% url 'login' %}">Connexion</a></li>
+  </ul>
+</nav>
 
 <main class="container">
   {% if temoins %}

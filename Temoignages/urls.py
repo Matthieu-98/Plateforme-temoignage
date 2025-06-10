@@ -35,6 +35,7 @@ urlpatterns = [
     path('questionnaire/questionnaires_publics/', views.questionnaires_publics, name='questionnaires_publics'),
     path('droits/', views.droits, name='droits'),
     path('langues/', views.langues, name='langues'),
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('login/register/', views.register, name='register'),
     path('login/forgotten-password/', views.forgotten_password, name='forgotten_password'),
     path('temoignage/', views.temoignage_upload, name='temoignage_upload'),

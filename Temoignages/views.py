@@ -17,6 +17,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from .models import Questionnaire, Question
+from django.views.decorators.http import require_POST
+
 
 
 
@@ -137,29 +140,44 @@ def liste_temoin(request):
     temoins = Temoin.objects.select_related('questionnaire').order_by('-date_creation')
     return render(request, 'temoignage.html', {'temoins': temoins})
 
+@require_POST
 def create_questionnaire(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            title = data.get('title', '')
-            questions = data.get('questions', [])
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Données JSON invalides.'}, status=400)
 
-            # ➤ Enregistrement réel dans la base de données
-            questionnaire = Questionnaire.objects.create(
-                titre=title,
-                utilisateur=request.user if request.user.is_authenticated else None
-            )
+    title = data.get('title', '').strip()
+    questions = data.get('questions', [])
 
-            for q in questions:
-                Question.objects.create(questionnaire=questionnaire, texte=q)
+    if not title:
+        return JsonResponse({'error': 'Le titre du questionnaire est obligatoire.'}, status=400)
 
-            return JsonResponse({'message': 'Questionnaire enregistré avec succès.'}, status=201)
+    if not isinstance(questions, list) or not all(isinstance(q, dict) for q in questions):
+        return JsonResponse({'error': 'Format des questions invalide.'}, status=400)
 
-        except Exception as e:
-            print("❌ Erreur JSON:", e)
-            return JsonResponse({'error': str(e)}, status=400)
+    # Création questionnaire
+    questionnaire = Questionnaire.objects.create(
+        titre=title,
+        utilisateur=request.user if request.user.is_authenticated else None
+    )
 
-    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+    # Préparation des objets Question
+    question_objs = []
+    for q in questions:
+        texte = q.get('text', '').strip()
+        required = bool(q.get('required', False))
+        if texte:  # Ignorer les questions vides
+            question_objs.append(Question(
+                questionnaire=questionnaire,
+                texte=texte,
+                is_required=required
+            ))
+
+    if question_objs:
+        Question.objects.bulk_create(question_objs)
+
+    return JsonResponse({'message': 'Questionnaire enregistré avec succès.'}, status=201)
 
 def questionnaires_prives(request):
     if request.user.is_authenticated:

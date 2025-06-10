@@ -5,16 +5,120 @@
   <meta charset="UTF-8">
   <title>Témoignage vidéo</title>
   <link rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav.navbar, nav.secondary-navbar {
+      background-color: #007bff;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    nav.navbar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    nav.navbar ul li {
+      display: inline;
+    }
+
+    nav.navbar ul li a, nav.secondary-navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5em 1em;
+    }
+
+    nav.navbar ul li a:hover, nav.secondary-navbar a:hover {
+      background-color: #0056b3;
+      border-radius: 6px;
+    }
+
+    nav.secondary-navbar {
+      background-color: #eee;
+      color: #333;
+    }
+
+    nav.secondary-navbar a {
+      color: #333;
+      margin: 0 10px;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 1.5em;
+    }
+
+    main.container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    form input[type="file"],
+    form select,
+    form input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    form input[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    form input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
 
-<nav style="background:#eee;padding:10px;text-align:center;">
-  <a href="{% url 'temoignage_upload' %}" style="margin:10px;">📤 Envoyer un témoignage</a>
-  <a href="{% url 'liste_temoin' %}" style="margin:10px;">📺 Voir les témoignages</a>
-  <a href="{% url 'upload_test' %}" style="margin:10px;">⚙️ Envoi manuel (test)</a>
+<nav class="navbar">
+  <ul>
+    <li><a href="{% url 'index' %}">Accueil</a></li>
+    <li><a href="{% url 'questionnaires_prives' %}">Questionnaires</a></li>
+    <li><a href="#">Langues</a></li>
+    <li><a href="{% url 'login' %}">Connexion</a></li>
+  </ul>
+</nav>  
+
+<nav class="secondary-navbar">
+  <a href="{% url 'temoignage_upload' %}">📤 Envoyer un témoignage</a>
+  <a href="{% url 'liste_temoin' %}">📺 Voir les témoignages</a>
+  <a href="{% url 'upload_test' %}">⚙️ Envoi manuel (test)</a>
 </nav>
 
-<header>Partagez vos expériences en vidéo</header>
+<header>🎬 Partagez vos expériences en vidéo</header>
 
 <main class="container">
   <form method="POST" enctype="multipart/form-data">
@@ -25,10 +129,10 @@
       {% for q in questionnaires %}
         <option value="{{ q.id }}">{{ q.titre }}</option>
       {% endfor %}
-    </select><br><br>
+    </select>
 
     <label for="videoUpload">Téléversez votre vidéo :</label>
-    <input type="file" name="videoUpload" accept="video/*" required><br><br>
+    <input type="file" name="videoUpload" accept="video/*" required>
 
     <input type="submit" class="btn-publier" value="Envoyer la vidéo">
   </form>
