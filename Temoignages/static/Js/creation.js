@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(' Obligatoire'));
+            label.appendChild(document.createTextNode('Obligatoire'));
 
             // Sélectionner une question au clic
             li.addEventListener('click', (e) => {

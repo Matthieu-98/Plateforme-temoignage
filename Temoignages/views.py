@@ -21,8 +21,6 @@ from .models import Questionnaire, Question
 from django.views.decorators.http import require_POST
 
 
-
-
 def index(request):
     return render(request, 'index.html')
 
@@ -212,6 +210,8 @@ def custom_login_view(request):
 
     return render(request, 'templates/login.html')
 
+# Définition d'un nouveau mot de passe si l'ancien est oublié 
+
 def reset_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -276,11 +276,13 @@ def set_new_password(request, uidb64, token):
     else:
         return HttpResponse("Lien de réinitialisation invalide ou expiré.")
 
+# ajout du décorateur qui oblige l'utilisateur à ce connecter avant de répondre par vidéo
+
 @login_required
 def upload_test(request):
     if request.method == "POST":
-        video = request.FILES.get("video")  # correspond à name="video"
-        questionnaire_id = request.POST.get("questionnaire")  # name="questionnaire"
+        video = request.FILES.get("video")  
+        questionnaire_id = request.POST.get("questionnaire")  
 
         if not video or not questionnaire_id:
             messages.error(request, "Tous les champs sont obligatoires.")
@@ -303,7 +305,9 @@ def upload_test(request):
 
     questionnaires = Questionnaire.objects.all()
     return render(request, "upload_test.html", {"questionnaires": questionnaires})
-    
+
+# ajout du décorateur qui oblige l'utilisateur à ce connecter avant de consulter les témoignages
+   
 @login_required
 def temoignage_upload(request):
     if request.method == 'POST':
