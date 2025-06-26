@@ -110,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_URL = 'sign'  # nom de l'URL vers la vue de connexion
+LOGIN_URL = 'login'  # nom de l'URL vers la vue de connexion
 
 
 # Internationalization

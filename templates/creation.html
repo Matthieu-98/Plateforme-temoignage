@@ -182,6 +182,12 @@
     </style>
 </head>
 
+<script>
+    const currentUser = "{{ request.user.username }}";
+    const isAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
+</script>
+
+
 <body>
 
     <header class="header">
@@ -192,7 +198,6 @@
         <ul>
             <li><a href="{% url 'index' %}">Accueil</a></li>
             <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
-            <li><a href="{% url 'droits' %}">Droits</a></li>
             <li><a href="#">Langues</a></li>
             <li><a href="{% url 'login' %}">Connexion</a></li>
         </ul>
@@ -229,9 +234,13 @@
     </footer>
 
     <script>
-      const redirectUrl = "{% url 'questionnaires_prives' %}";
+        const createQuestionnaireUrl = "{% url 'create_questionnaire' %}";
+        const redirectUrl = "{% url 'index' %}";
+        const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
     </script>
 
     <script src="{% static 'js/creation.js' %}"></script>
+
+
 </body>
 </html>

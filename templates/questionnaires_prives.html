@@ -6,6 +6,43 @@
     <meta charset="UTF-8">
     <title>Questionnaires Privés</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<style>
+
+.questionnaire-box {
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 600px;
+  background-color: #f9faff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+
+.questionnaire-title {
+  font-size: 1.8em;
+  margin-bottom: 15px;
+  color: #0056b3;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 8px;
+}
+
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.question-item {
+  color: #333;
+  font-weight: 600;
+}
+
+</style>
+
 </head>
 <body>
     <nav class="navbar">
@@ -19,26 +56,24 @@
 
     <h1>Vos questionnaires privés</h1>
 
-    {% if questionnaires %}
-        <ul>
-        {% for q in questionnaires %}
-            <li>
-                <strong>{{ q.titre }}</strong>
-                {% if q.questions.all %}
-                    <ul>
-                    {% for question in q.questions.all %}
-                        <li>{{ question.texte }}</li>
-                    {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Aucune question.</p>
-                {% endif %}
-            </li>
+{% for q in questionnaires %}
+  <div class="questionnaire-box">
+    <h2 class="questionnaire-title">{{ q.titre }}</h2>
+    {% if q.questions.count %}
+      <ul class="questions-list">
+        {% for question in q.questions.all %}
+          <li class="question-item">
+            {{ forloop.counter }}. {{ question.texte }} {% if question.is_required %}<strong>(Obligatoire)</strong>{% endif %}
+          </li>
         {% endfor %}
-        </ul>
+      </ul>
     {% else %}
-        <p>Aucun questionnaire trouvé.</p>
+      <p>Aucune question.</p>
     {% endif %}
+  </div>
+{% empty %}
+  <p>Vous n'avez aucun questionnaire.</p>
+{% endfor %}
 
     <footer class="footer">
         <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>

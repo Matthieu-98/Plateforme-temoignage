@@ -1,25 +1,25 @@
-from django.shortcuts import render
-from django.http import HttpResponse 
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
-from .models import Temoin
-from django.http import JsonResponse
-import json
-from .models import Questionnaire, Question
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from .models import Questionnaire, Question
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+import json
 
+from .models import Temoin, Questionnaire, Question
+from .forms import LoginForm
+
+# -------------------------
+# Pages statiques / templates simples
+# -------------------------
 
 def index(request):
     return render(request, 'index.html')
@@ -30,17 +30,11 @@ def questionnaires(request):
 def questionnaires_publics(request):
     return render(request, 'questionnaires_publics.html')
 
-def questionnaires_prives(request):
-    return render(request, 'questionnaires_prives.html')
-
-def droits(request):
-    return render(request, 'droits.html')
-
 def langues(request):
     return render(request, 'langues.html')
 
-def login(request):
-    return render(request, 'login.html')
+def login_view(request):
+    return render(request, 'login_register.html')
 
 def register(request):
     return render(request, 'register.html')
@@ -51,166 +45,72 @@ def creation(request):
 def forgotten_password(request):
     return render(request, 'forgotten_password.html')
 
-def reset_password(request):
-    return render(request, 'reset_password.html')
-
 def temoignage(request):
     return render(request, 'temoignage.html')
 
+# -------------------------
+# Connexion personnalisée avec formulaire
+# -------------------------
+@csrf_protect
+def login_register(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
 
-def send_confirmation_link(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("mot_de_passe")
-        confirmation = request.POST.get("confirmation")
-
-        if not email or not password or not confirmation:
-            messages.error(request, "Tous les champs sont obligatoires.")
-            return redirect("register")
-
-        if password != confirmation:
-            messages.error(request, "Les mots de passe ne correspondent pas.")
-            return redirect("register")
-
-        existing_user = User.objects.filter(username=email).first()
-        if existing_user:
-            # L'utilisateur existe, vérifier le mot de passe
+        if action == 'login':
+            email = request.POST.get('email')
+            password = request.POST.get('password')
             user = authenticate(request, username=email, password=password)
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     messages.success(request, "Connexion réussie.")
-                    return redirect("index")  # Redirige vers la page d'accueil
+                    return redirect('index')
                 else:
-                    messages.warning(request, "Votre compte existe mais n’est pas encore activé. Vérifiez vos e-mails.")
-                    return redirect("login")
+                    messages.warning(request, "Votre compte n'est pas encore activé.")
             else:
-                messages.error(request, "Un compte existe déjà avec cet e-mail, mais le mot de passe est incorrect.")
-                return redirect("register")
+                messages.error(request, "Identifiants invalides.")
 
-        # L'utilisateur n'existe pas : création et envoi du lien de confirmation
-        user = User.objects.create_user(username=email, email=email, password=password)
-        user.is_active = False
-        user.save()
+        elif action == 'register':
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            confirmation = request.POST.get('confirmation')
 
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        current_site = get_current_site(request)
-        confirmation_url = f"http://{current_site.domain}/activate/{uid}/{token}/"
-
-        message = render_to_string("emails/activation_email.html", {
-            'user': user,
-            'confirmation_url': confirmation_url,
-        })
-
-        mail = EmailMessage(
-            subject="Confirmez votre adresse e-mail",
-            body=message,
-            to=[email],
-        )
-        mail.content_subtype = 'html'
-        mail.send()
-
-        messages.success(request, "Un e-mail de confirmation vous a été envoyé.")
-        return redirect("login")
-
-    return redirect("register")
-
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        if not user.is_active:
-            user.is_active = True
-            user.save()
-            message = "Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter."
-        else:
-            message = "Votre compte est déjà activé."
-        return render(request, "emails/activation_success.html", {"message": message})
-    else:
-        return render(request, "emails/activation_failed.html", {"message": "Lien de confirmation invalide ou expiré."})
-
-def liste_temoin(request):
-    temoins = Temoin.objects.select_related('questionnaire').order_by('-date_creation')
-    return render(request, 'temoignage.html', {'temoins': temoins})
-
-@require_POST
-def create_questionnaire(request):
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Données JSON invalides.'}, status=400)
-
-    title = data.get('title', '').strip()
-    questions = data.get('questions', [])
-
-    if not title:
-        return JsonResponse({'error': 'Le titre du questionnaire est obligatoire.'}, status=400)
-
-    if not isinstance(questions, list) or not all(isinstance(q, dict) for q in questions):
-        return JsonResponse({'error': 'Format des questions invalide.'}, status=400)
-
-    # Création questionnaire
-    questionnaire = Questionnaire.objects.create(
-        titre=title,
-        utilisateur=request.user if request.user.is_authenticated else None
-    )
-
-    # Préparation des objets Question
-    question_objs = []
-    for q in questions:
-        texte = q.get('text', '').strip()
-        required = bool(q.get('required', False))
-        if texte:  # Ignorer les questions vides
-            question_objs.append(Question(
-                questionnaire=questionnaire,
-                texte=texte,
-                is_required=required
-            ))
-
-    if question_objs:
-        Question.objects.bulk_create(question_objs)
-
-    return JsonResponse({'message': 'Questionnaire enregistré avec succès.'}, status=201)
-
-def questionnaires_prives(request):
-    if request.user.is_authenticated:
-        questionnaires = Questionnaire.objects.filter(utilisateur=request.user).prefetch_related('questions')
-    else:
-        questionnaires = []
-    return render(request, 'questionnaires_prives.html', {'questionnaires': questionnaires})
-
-
-@csrf_protect
-def custom_login_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-
-        if not email or not password:
-            messages.error(request, "Veuillez remplir tous les champs.")
-            return redirect('login')
-
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                messages.success(request, "Connexion réussie.")
-                return redirect('index')
+            if not email or not password or not confirmation:
+                messages.error(request, "Tous les champs sont obligatoires.")
+            elif password != confirmation:
+                messages.error(request, "Les mots de passe ne correspondent pas.")
+            elif User.objects.filter(username=email).exists():
+                messages.error(request, "Un compte avec cet email existe déjà.")
             else:
-                messages.warning(request, "Votre compte n'est pas encore activé.")
-                return redirect('login')
-        else:
-            messages.error(request, "Identifiants invalides.")
-            return redirect('login')
+                user = User.objects.create_user(username=email, email=email, password=password)
+                user.is_active = False
+                user.save()
 
-    return render(request, 'templates/login.html')
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                current_site = get_current_site(request)
+                confirmation_url = f"http://{current_site.domain}/activate/{uid}/{token}/"
 
-# Définition d'un nouveau mot de passe si l'ancien est oublié 
+                message = render_to_string("emails/activation_email.html", {
+                    'user': user,
+                    'confirmation_url': confirmation_url,
+                })
+
+                mail = EmailMessage(
+                    subject="Confirmez votre adresse e-mail",
+                    body=message,
+                    to=[email],
+                )
+                mail.content_subtype = 'html'
+                mail.send()
+
+                messages.success(request, "Un e-mail de confirmation vous a été envoyé.")
+                return redirect('login_register')
+
+    return render(request, 'login_register.html')
+# -------------------------
+# Réinitialisation du mot de passe
+# -------------------------
 
 def reset_password(request):
     if request.method == 'POST':
@@ -268,7 +168,7 @@ def set_new_password(request, uidb64, token):
             user.set_password(password)
             user.save()
             messages.success(request, "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter.")
-            return redirect('login')  # Redirige vers la page de connexion
+            return redirect('login')
         return render(request, 'set_new_password.html', {
             'uidb64': uidb64,
             'token': token,
@@ -276,7 +176,56 @@ def set_new_password(request, uidb64, token):
     else:
         return HttpResponse("Lien de réinitialisation invalide ou expiré.")
 
-# ajout du décorateur qui oblige l'utilisateur à ce connecter avant de répondre par vidéo
+# -------------------------
+# Activation du compte via email
+# -------------------------
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+            message = "Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter."
+        else:
+            message = "Votre compte est déjà activé."
+        return render(request, "emails/activation_success.html", {"message": message})
+    else:
+        return render(request, "emails/activation_failed.html", {"message": "Lien de confirmation invalide ou expiré."})
+
+# -------------------------
+# Gestion des témoignages
+# -------------------------
+
+@login_required
+def liste_temoin(request):
+    temoins = Temoin.objects.select_related('questionnaire').order_by('-date_creation')
+    return render(request, 'temoignage.html', {'temoins': temoins})
+
+@login_required
+def temoignage_upload(request):
+    if request.method == 'POST':
+        questionnaire_id = request.POST.get('questionnaire_id')
+        video_file = request.FILES.get('videoUpload')
+
+        if questionnaire_id and video_file:
+            questionnaire = Questionnaire.objects.get(id=questionnaire_id)
+            Temoin.objects.create(
+                questionnaire=questionnaire,
+                utilisateur=request.user,
+                fichier_video=video_file
+            )
+            return redirect('liste_temoin')
+
+    questionnaires = Questionnaire.objects.filter(utilisateur=request.user)
+    return render(request, 'temoignage_upload.html', {
+        'questionnaires': questionnaires
+    })
 
 @login_required
 def upload_test(request):
@@ -306,24 +255,68 @@ def upload_test(request):
     questionnaires = Questionnaire.objects.all()
     return render(request, "upload_test.html", {"questionnaires": questionnaires})
 
-# ajout du décorateur qui oblige l'utilisateur à ce connecter avant de consulter les témoignages
-   
-@login_required
-def temoignage_upload(request):
-    if request.method == 'POST':
-        questionnaire_id = request.POST.get('questionnaire_id')
-        video_file = request.FILES.get('videoUpload')
+# -------------------------
+# Création de questionnaire via AJAX POST JSON
+# -------------------------
 
-        if questionnaire_id and video_file:
-            questionnaire = Questionnaire.objects.get(id=questionnaire_id)
-            Temoin.objects.create(
+@require_POST
+@login_required
+def create_questionnaire(request):
+    print("🧪 Requête reçue à create_questionnaire")
+    print("Utilisateur connecté :", request.user)
+    print("Est authentifié :", request.user.is_authenticated)
+    
+    try:
+        data = json.loads(request.body)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Données JSON invalides.'}, status=400)
+
+    title = data.get('title', '').strip()
+    questions = data.get('questions', [])
+
+    if not title:
+        return JsonResponse({'error': 'Le titre du questionnaire est obligatoire.'}, status=400)
+
+    if not isinstance(questions, list) or not all(isinstance(q, dict) for q in questions):
+        return JsonResponse({'error': 'Format des questions invalide.'}, status=400)
+
+    questionnaire = Questionnaire.objects.create(
+        titre=title,
+        utilisateur=request.user
+    )
+    print(f"Créé questionnaire id={questionnaire.id}, titre='{questionnaire.titre}', utilisateur={questionnaire.utilisateur}")
+
+
+    for q in questions:
+        texte = q.get('texte', '').strip()
+        is_required = q.get('is_required', False)
+        if texte:
+            Question.objects.create(
                 questionnaire=questionnaire,
-                utilisateur=request.user,
-                fichier_video=video_file
+                texte=texte,
+                is_required=is_required
             )
-            return redirect('liste_temoin')  # Redirige vers la liste des témoignages
+
+    return JsonResponse({'message': 'Questionnaire créé avec succès.'})
+
+# -------------------------
+# Liste des questionnaires privés de l'utilisateur
+# -------------------------
+
+@login_required
+def questionnaires_prives(request):
+    if not request.user.is_authenticated:
+        # Optionnel : rediriger ou afficher un message si pas connecté
+        return redirect('login')  
 
     questionnaires = Questionnaire.objects.filter(utilisateur=request.user)
-    return render(request, 'temoignage_upload.html', {
-        'questionnaires': questionnaires
-    })
+    print(f"Questionnaires pour {request.user}: {questionnaires}")
+    return render(request, 'questionnaires_prives.html', {'questionnaires': questionnaires})
+
+
+def questionnaires_publics(request):
+    # On récupère uniquement les questionnaires publics
+    questionnaires = Questionnaire.objects.filter(is_public=True)
+    print(f"Questionnaires publics : {questionnaires}")
+    return render(request, 'questionnaires_publics.html', {'questionnaires': questionnaires})

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Connexion / Inscription</title>
+<style>
+  .form-container { max-width: 300px; margin: auto; }
+  .hidden { display: none; }
+  .error { color: red; }
+  .success { color: green; }
+  button { margin-top: 10px; }
+</style>
+</head>
+<body>
+  {% for message in messages %}
+    <p class="{{ message.tags }}">{{ message }}</p>
+  {% endfor %}
+
+  <div class="form-container">
+    <button id="showLogin">Se connecter</button>
+    <button id="showRegister">S'inscrire</button>
+
+    <form id="loginForm" method="POST" class="">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="login" />
+      <label>Email :</label><br/>
+      <input type="email" name="email" required /><br/>
+      <label>Mot de passe :</label><br/>
+      <input type="password" name="password" required /><br/>
+      <button type="submit">Connexion</button>
+    </form>
+
+    <form id="registerForm" method="POST" class="hidden">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="register" />
+      <label>Email :</label><br/>
+      <input type="email" name="email" required /><br/>
+      <label>Mot de passe :</label><br/>
+      <input type="password" name="password" required /><br/>
+      <label>Confirmer mot de passe :</label><br/>
+      <input type="password" name="confirmation" required /><br/>
+      <button type="submit">Inscription</button>
+    </form>
+  </div>
+
+<script>
+  const loginBtn = document.getElementById('showLogin');
+  const registerBtn = document.getElementById('showRegister');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+
+  loginBtn.addEventListener('click', () => {
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+  });
+
+  registerBtn.addEventListener('click', () => {
+    registerForm.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+  });
+</script>
+
+</body>
+</html>

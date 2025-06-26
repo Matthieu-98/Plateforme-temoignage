@@ -10,7 +10,7 @@
     * {
       box-sizing: border-box;
     }
-
+    
     body {
       margin: 0;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -123,6 +123,29 @@
       font-size: 14px;
       margin-top: auto;
     }
+
+     .messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+  .messages li {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .messages li.error {
+    background-color: #f8d7da;
+    color: #842029;
+  }
+  .messages li.success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+  }
+  .messages li.warning {
+    background-color: #fff3cd;
+    color: #664d03;
+  }
   </style>
 </head>
 
@@ -130,6 +153,15 @@
 
   <main class="container">
     <h1>Créer un compte</h1>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
     <form method="POST" action="{% url 'send_link' %}" enctype="multipart/form-data" onsubmit="return verifierInscription()">
       {% csrf_token %}
 
@@ -152,7 +184,6 @@
 
       <button type="submit" class="btn">S'inscrire</button>
     </form>
-
   </main>
 
   <footer class="footer">
@@ -200,8 +231,6 @@
       }
     });
   </script>
-
-<form method="POST" action="/send-link/" enctype="multipart/form-data" onsubmit="return verifierInscription()">
 
 </body>
 
