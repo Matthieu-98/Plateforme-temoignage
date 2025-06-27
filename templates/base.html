@@ -1,11 +1,35 @@
 {% load static %}
-<!-- app/templates/app/base.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Temoignages{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 15px;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+        }
+        .language-selector {
+            font-size: 0.9em;
+        }
+        #google_translate_element select {
+            padding: 3px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -18,13 +42,30 @@
             <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
             <li><a href="{% url 'questionnaires_prives' %}">Questionnaires privés</a></li>
             <li><a href="{% url 'questionnaires_publics' %}">Questionnaires publics</a></li>
-            <li><a href="{% url 'langues' %}">Langues</a></li>
         </ul>
+        <div class="language-selector" id="google_translate_element"></div>
     </nav>
 
     <main>
         {% block content %}
         {% endblock %}
     </main>
+
+    <!-- Script Google Translate -->
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'fr',
+                includedLanguages: 'fr,en,es,de,ar,it,zh-CN,ru,pt',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+
+        (function loadGoogleTranslateScript() {
+            const script = document.createElement('script');
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            document.head.appendChild(script);
+        })();
+    </script>
 </body>
 </html>

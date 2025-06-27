@@ -24,7 +24,6 @@ urlpatterns = [
 
     # Création et gestion de questionnaires
     path('creation/', views.creation, name='creation'),
-   # path('create/', views.create_questionnaire, name='create_questionnaire'),
     path('questionnaire/', views.questionnaires, name='questionnaires'),
     path('questionnaire/create/', views.create_questionnaire, name='create_questionnaire'),
     path('questionnaire/questionnaires_prives/', views.questionnaires_prives, name='questionnaires_prives'),
@@ -35,7 +34,6 @@ urlpatterns = [
     path('temoins/', views.liste_temoin, name='liste_temoin'),
 
     # Divers
-    path('langues/', views.langues, name='langues'),
     path('upload-test/', views.upload_test, name='upload_test'),
 ]
 

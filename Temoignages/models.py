@@ -11,6 +11,7 @@ class Questionnaire(models.Model):
         related_name='questionnaires'
     )
     date_creation = models.DateTimeField(auto_now_add=True)
+    is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return self.titre
