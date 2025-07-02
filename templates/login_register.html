@@ -1,64 +1,233 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<title>Connexion / Inscription</title>
-<style>
-  .form-container { max-width: 300px; margin: auto; }
-  .hidden { display: none; }
-  .error { color: red; }
-  .success { color: green; }
-  button { margin-top: 10px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Connexion / Inscription</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 30px; }
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-buttons button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #eee;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .tab-buttons button.active { background-color: #4285F4; color: white; }
+        .tab-buttons button:hover:not(.active) { background-color: #dbe9fb; }
+        
+        .form-tab { display: none; }
+        .form-tab.active { display: block; }
+        
+        .form-group { margin-bottom: 20px; position: relative; }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="email"], input[type="password"], input[type="file"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.8px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="file"]:focus {
+            border-color: #4285F4;
+            outline: none;
+        }
+        
+        .submit-btn {
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #1e7e34;
+        }
+        
+        .messages { color: red; margin-bottom: 15px; }
+        
+        .forgot-password-btn {
+          background-color: transparent;
+          border: none;
+          color: #4285F4;
+          text-decoration: underline;
+          cursor: pointer;
+          font-size: 0.9em;
+          padding: 0;
+          font-family: inherit;
+          margin-top: 10px;
+          display: inline-block;
+        }
+
+        .forgot-password-btn:hover {
+          color: #2a56c6;
+        }
+
+        .upload-label {
+            cursor: pointer;
+            color: #4285F4;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+        .upload-label:hover {
+            color: #1a64d9;
+        }
+
+        .file-name {
+            margin-top: 6px;
+            font-style: italic;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .preview {
+            display: none;
+            margin-top: 12px;
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-  {% for message in messages %}
-    <p class="{{ message.tags }}">{{ message }}</p>
-  {% endfor %}
 
-  <div class="form-container">
-    <button id="showLogin">Se connecter</button>
-    <button id="showRegister">S'inscrire</button>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-    <form id="loginForm" method="POST" class="">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="login" />
-      <label>Email :</label><br/>
-      <input type="email" name="email" required /><br/>
-      <label>Mot de passe :</label><br/>
-      <input type="password" name="password" required /><br/>
-      <button type="submit">Connexion</button>
+    <div class="tab-buttons">
+        <button id="loginTab" class="active" onclick="switchTab('login')">Connexion</button>
+        <button id="registerTab" onclick="switchTab('register')">Inscription</button>
+    </div>
+
+    <form method="POST" id="authForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" id="actionInput" name="action" value="login">
+
+        <!-- Connexion -->
+        <div id="loginForm" class="form-tab active">
+            <div class="form-group">
+                <label for="login_email">Email</label>
+                <input type="email" id="login_email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="login_password">Mot de passe</label>
+                <input type="password" id="login_password" name="password" required>
+            </div>
+            <button type="submit" class="submit-btn">Se connecter</button>
+            <div class="form-group">
+                <button type="button" class="forgot-password-btn" onclick="window.location.href='{% url 'forgotten_password' %}'">Mot de passe oublié ?</button>
+            </div>
+        </div>
+
+        <!-- Inscription -->
+        <div id="registerForm" class="form-tab">
+            <div class="form-group">
+                <label for="register_email">Email</label>
+                <input type="email" id="register_email" name="email" required disabled>
+            </div>
+            <div class="form-group">
+                <label for="register_password">Mot de passe</label>
+                <input type="password" id="register_password" name="password" required disabled>
+            </div>
+            <div class="form-group">
+                <label for="register_confirmation">Confirmation du mot de passe</label>
+                <input type="password" id="register_confirmation" name="confirmation" required disabled>
+            </div>
+            <div class="form-group">
+              <label for="photo" class="upload-label">Choisir une photo</label>
+              <input type="file" id="photo" name="photo" accept="image/*" disabled />
+              <div class="file-name" id="file-name">Aucun fichier sélectionné</div>
+              <img id="preview" class="preview" alt="Aperçu de la photo" />
+            </div>
+
+            <button type="submit" class="submit-btn" disabled>S’inscrire</button>
+        </div>
     </form>
 
-    <form id="registerForm" method="POST" class="hidden">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="register" />
-      <label>Email :</label><br/>
-      <input type="email" name="email" required /><br/>
-      <label>Mot de passe :</label><br/>
-      <input type="password" name="password" required /><br/>
-      <label>Confirmer mot de passe :</label><br/>
-      <input type="password" name="confirmation" required /><br/>
-      <button type="submit">Inscription</button>
-    </form>
-  </div>
+    <script>
+    function switchTab(tab) {
+        const loginBtn = document.getElementById('loginTab');
+        const registerBtn = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const actionInput = document.getElementById('actionInput');
 
-<script>
-  const loginBtn = document.getElementById('showLogin');
-  const registerBtn = document.getElementById('showRegister');
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
+        if (tab === 'login') {
+            loginBtn.classList.add('active');
+            registerBtn.classList.remove('active');
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+            actionInput.value = 'login';
 
-  loginBtn.addEventListener('click', () => {
-    loginForm.classList.remove('hidden');
-    registerForm.classList.add('hidden');
-  });
+            loginForm.querySelectorAll('input, button.submit-btn').forEach(el => el.disabled = false);
+            registerForm.querySelectorAll('input, button.submit-btn').forEach(el => el.disabled = true);
+        } else {
+            registerBtn.classList.add('active');
+            loginBtn.classList.remove('active');
+            registerForm.classList.add('active');
+            loginForm.classList.remove('active');
+            actionInput.value = 'register';
 
-  registerBtn.addEventListener('click', () => {
-    registerForm.classList.remove('hidden');
-    loginForm.classList.add('hidden');
-  });
-</script>
+            registerForm.querySelectorAll('input, button.submit-btn').forEach(el => el.disabled = false);
+            loginForm.querySelectorAll('input, button.submit-btn').forEach(el => el.disabled = true);
+        }
+    }
+
+    // Initialisation au chargement de la page
+    window.onload = function() {
+        switchTab('login');
+    };
+
+    // Gestion fichier + aperçu photo
+    const fileInput = document.getElementById('photo');
+    const fileNameDisplay = document.getElementById('file-name');
+    const preview = document.getElementById('preview');
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        fileNameDisplay.textContent = 'Aucun fichier sélectionné';
+        preview.style.display = 'none';
+        preview.src = '';
+      }
+    });
+    </script>
 
 </body>
 </html>

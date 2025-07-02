@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.sites.shortcuts import get_current_site
@@ -11,6 +12,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from django.contrib import messages
 import json
 
@@ -51,16 +53,22 @@ def temoignage(request):
 # -------------------------
 # Connexion personnalisée avec formulaire
 # -------------------------
-@csrf_protect
+User = get_user_model()
+
 def login_register(request):
     if request.method == 'POST':
         action = request.POST.get('action')
 
+        if action not in ['login', 'register']:
+            return HttpResponseBadRequest("Action invalide.")
+
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '')
+        confirmation = request.POST.get('confirmation', '')
+
         if action == 'login':
-            email = request.POST.get('email')
-            password = request.POST.get('password')
             user = authenticate(request, username=email, password=password)
-            if user is not None:
+            if user:
                 if user.is_active:
                     login(request, user)
                     messages.success(request, "Connexion réussie.")
@@ -71,16 +79,12 @@ def login_register(request):
                 messages.error(request, "Identifiants invalides.")
 
         elif action == 'register':
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            confirmation = request.POST.get('confirmation')
-
             if not email or not password or not confirmation:
                 messages.error(request, "Tous les champs sont obligatoires.")
             elif password != confirmation:
                 messages.error(request, "Les mots de passe ne correspondent pas.")
-            elif User.objects.filter(username=email).exists():
-                messages.error(request, "Un compte avec cet email existe déjà.")
+            elif User.objects.filter(username=email).exists() or User.objects.filter(email=email).exists():
+                messages.error(request, "Un compte avec cet e-mail existe déjà.")
             else:
                 user = User.objects.create_user(username=email, email=email, password=password)
                 user.is_active = False
@@ -96,18 +100,22 @@ def login_register(request):
                     'confirmation_url': confirmation_url,
                 })
 
-                mail = EmailMessage(
-                    subject="Confirmez votre adresse e-mail",
-                    body=message,
-                    to=[email],
-                )
-                mail.content_subtype = 'html'
-                mail.send()
+                try:
+                    mail = EmailMessage(
+                        subject="Confirmez votre adresse e-mail",
+                        body=message,
+                        to=[email],
+                    )
+                    mail.content_subtype = 'html'
+                    mail.send()
+                    messages.success(request, "Un e-mail de confirmation vous a été envoyé.")
+                except Exception as e:
+                    messages.error(request, "Erreur lors de l’envoi de l’e-mail. Veuillez réessayer plus tard.")
 
-                messages.success(request, "Un e-mail de confirmation vous a été envoyé.")
-                return redirect('login_register')
+                return redirect('login')  
 
     return render(request, 'login_register.html')
+
 # -------------------------
 # Réinitialisation du mot de passe
 # -------------------------
@@ -314,6 +322,9 @@ def questionnaires_prives(request):
     print(f"Questionnaires pour {request.user}: {questionnaires}")
     return render(request, 'questionnaires_prives.html', {'questionnaires': questionnaires})
 
+# -------------------------
+# Liste des questionnaires publics de l'utilisateur
+# -------------------------
 
 def questionnaires_publics(request):
     # On récupère uniquement les questionnaires publics
