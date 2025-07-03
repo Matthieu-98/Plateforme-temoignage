@@ -192,8 +192,8 @@
         <ul>
             <li><a href="{% url 'index' %}">Accueil</a></li>
             <li><a href="{% url 'questionnaires' %}">Questionnaires</a></li>
-            <li id="google_translate_element"></li>
             <li><a href="{% url 'login' %}">Connexion</a></li>
+            <li id="google_translate_element"></li>
         </ul>
     </nav>
 
@@ -209,8 +209,8 @@
                 </div>
                 
                 <textarea id="questionInput" placeholder="Entrez une question..." rows="3"></textarea>
-                <label> <input type="checkbox" id="requiredCheckbox" checked>   Rendre la question obligatoire  </label>    
-
+                <label> <input type="checkbox" id="requiredCheckbox" checked>   Rendre la question obligatoire  </label>
+                <label> <input type="checkbox" id="isPublicCheckbox" checked> Rendre le questionnaire public  </label>    
 
                 <div class="button-group">
                     <button id="addQuestion" class="btn-publier" type="button">Ajouter une question</button>
@@ -232,6 +232,24 @@
     const redirectUrl = "{% url 'index' %}";
     const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
 </script>
+
+<!-- Script Google Translate -->
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'fr',
+                includedLanguages: 'fr,en,es,de,ar,it,zh-CN,ru,pt',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+
+        (function loadGoogleTranslateScript() {
+            const script = document.createElement('script');
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            document.head.appendChild(script);
+        })();
+    </script>
+
 <script src="{% static 'js/creation.js' %}"></script>
 
     

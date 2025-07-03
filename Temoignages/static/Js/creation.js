@@ -65,8 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        const isPublic = document.getElementById('isPublicCheckbox')?.checked || false;
+
         const data = {
             title: title,
+            is_public: isPublic,
             questions: questions.map(q => ({
                 texte: q.text,
                 is_required: q.required

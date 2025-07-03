@@ -6,36 +6,112 @@
     <meta charset="UTF-8">
     <title>Questionnaires Publics</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f7f7f7;
+        }
+
+        .navbar {
+            background-color: #333;
+            padding: 10px;
+        }
+
+        .navbar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .questionnaire {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .questionnaire-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #007BFF;
+        }
+
+        .questions-list {
+            padding-left: 20px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <ul>
             <li><a href="{% url 'index' %}">Accueil</a></li>
-            <li><a href="{% url 'questionnaires_prives' %}">Questionnaires</a></li>
-            <li id="google_translate_element"></li>
+            <li><a href="{% url 'questionnaires_prives' %}">Mes questionnaires</a></li>
             <li><a href="{% url 'login' %}">Connexion</a></li>
+            <li id="google_translate_element"></li>
+
         </ul>
     </nav>
 
     <h1>Les questionnaires publics</h1>
 
-    <ul>
-        {% for q in questionnaires %}
-            <li>
-                <strong>{{ q.titre }}</strong><br>
-                <ul>
-                    {% for question in q.questions %}
-                        <li>{{ question }}</li>
+    {% for q in questionnaires %}
+        <div class="questionnaire">
+            <div class="questionnaire-title">{{ q.titre }}</div>
+            {% if q.questions.all %}
+                <ul class="questions-list">
+                    {% for question in q.questions.all %}
+                        <li>{{ question.texte }}</li>
                     {% endfor %}
                 </ul>
-            </li>
-        {% empty %}
-            <li>Aucun questionnaire pour le moment.</li>
-        {% endfor %}
-    </ul>
+            {% else %}
+                <p>Aucune question pour ce questionnaire.</p>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>Aucun questionnaire public disponible.</p>
+    {% endfor %}
 
     <footer class="footer">
         <p>&copy; 2025 Plateforme de témoignage. Tous droits réservés.</p>
     </footer>
+
+    <!-- Script Google Translate -->
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'fr',
+                includedLanguages: 'fr,en,es,de,ar,it,zh-CN,ru,pt',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+
+        (function loadGoogleTranslateScript() {
+            const script = document.createElement('script');
+            script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+            document.head.appendChild(script);
+        })();
+    </script>
+    
 </body>
 </html>

@@ -270,17 +270,22 @@ def upload_test(request):
 @require_POST
 @login_required
 def create_questionnaire(request):
-    print("🧪 Requête reçue à create_questionnaire")
+    if request.method != "POST":
+        return JsonResponse({'error': 'Méthode non autorisée.'}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentification requise.'}, status=401)
+
+    print("Requête reçue à create_questionnaire")
     print("Utilisateur connecté :", request.user)
-    print("Est authentifié :", request.user.is_authenticated)
-    
+
     try:
         data = json.loads(request.body)
-
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Données JSON invalides.'}, status=400)
 
     title = data.get('title', '').strip()
+    is_public = data.get('is_public', False)
     questions = data.get('questions', [])
 
     if not title:
@@ -289,16 +294,20 @@ def create_questionnaire(request):
     if not isinstance(questions, list) or not all(isinstance(q, dict) for q in questions):
         return JsonResponse({'error': 'Format des questions invalide.'}, status=400)
 
+    # Création du questionnaire
     questionnaire = Questionnaire.objects.create(
         titre=title,
-        utilisateur=request.user
+        utilisateur=request.user,
+        is_public=is_public
     )
-    print(f"Créé questionnaire id={questionnaire.id}, titre='{questionnaire.titre}', utilisateur={questionnaire.utilisateur}")
 
+    print(f"Questionnaire créé : ID={questionnaire.id}, titre='{questionnaire.titre}', public={questionnaire.is_public}")
 
+    # Création des questions
     for q in questions:
         texte = q.get('texte', '').strip()
         is_required = q.get('is_required', False)
+
         if texte:
             Question.objects.create(
                 questionnaire=questionnaire,
@@ -315,7 +324,6 @@ def create_questionnaire(request):
 @login_required
 def questionnaires_prives(request):
     if not request.user.is_authenticated:
-        # Optionnel : rediriger ou afficher un message si pas connecté
         return redirect('login')  
 
     questionnaires = Questionnaire.objects.filter(utilisateur=request.user)
@@ -328,6 +336,6 @@ def questionnaires_prives(request):
 
 def questionnaires_publics(request):
     # On récupère uniquement les questionnaires publics
-    questionnaires = Questionnaire.objects.filter(is_public=True)
+    questionnaires = Questionnaire.objects.filter(is_public=True).order_by('-date_creation')
     print(f"Questionnaires publics : {questionnaires}")
     return render(request, 'questionnaires_publics.html', {'questionnaires': questionnaires})
